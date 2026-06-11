@@ -1,0 +1,62 @@
+import { describe, expect, it } from "vitest";
+import { loadConfig, normalizePsaSite } from "../src/config.js";
+
+describe("normalizePsaSite", () => {
+  it("adds the api- prefix for cloud hosts", () => {
+    expect(normalizePsaSite("na.myconnectwise.net")).toBe("api-na.myconnectwise.net");
+    expect(normalizePsaSite("eu.myconnectwise.net")).toBe("api-eu.myconnectwise.net");
+    expect(normalizePsaSite("staging.connectwisedev.com")).toBe("api-staging.connectwisedev.com");
+  });
+
+  it("keeps already-correct cloud hosts", () => {
+    expect(normalizePsaSite("api-na.myconnectwise.net")).toBe("api-na.myconnectwise.net");
+  });
+
+  it("strips protocol and paths", () => {
+    expect(normalizePsaSite("https://na.myconnectwise.net/v4_6_release/apis/3.0")).toBe(
+      "api-na.myconnectwise.net",
+    );
+  });
+
+  it("leaves on-premise hosts untouched", () => {
+    expect(normalizePsaSite("cw.example.com")).toBe("cw.example.com");
+  });
+});
+
+const PSA_ENV = {
+  CW_PSA_SITE: "na.myconnectwise.net",
+  CW_PSA_COMPANY_ID: "mycompany",
+  CW_PSA_PUBLIC_KEY: "pub",
+  CW_PSA_PRIVATE_KEY: "priv",
+  CW_PSA_CLIENT_ID: "guid",
+};
+
+describe("loadConfig", () => {
+  it("builds PSA config when all vars are present", () => {
+    const config = loadConfig({ ...PSA_ENV, MCP_AUTH_TOKEN: "tok" });
+    expect(config.psa).toMatchObject({ site: "api-na.myconnectwise.net", companyId: "mycompany" });
+    expect(config.authToken).toBe("tok");
+    expect(config.automate).toBeUndefined();
+  });
+
+  it("throws on partial PSA config", () => {
+    expect(() => loadConfig({ CW_PSA_SITE: "na.myconnectwise.net" })).toThrow(/missing/i);
+  });
+
+  it("omits PSA entirely when no vars are set", () => {
+    const config = loadConfig({});
+    expect(config.psa).toBeUndefined();
+    expect(config.port).toBe(8080);
+  });
+
+  it("enables automate only when all four vars are present", () => {
+    const config = loadConfig({
+      ...PSA_ENV,
+      CW_AUTOMATE_URL: "https://automate.example.com/",
+      CW_AUTOMATE_USERNAME: "user",
+      CW_AUTOMATE_PASSWORD: "pass",
+      CW_AUTOMATE_CLIENT_ID: "guid",
+    });
+    expect(config.automate?.baseUrl).toBe("https://automate.example.com");
+  });
+});
