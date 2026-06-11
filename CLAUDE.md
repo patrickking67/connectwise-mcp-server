@@ -19,8 +19,10 @@ Unified ConnectWise MCP server exposing ConnectWise PSA (Manage) and optionally 
 - `src/config.ts` — env parsing; `normalizePsaSite` adds the `api-` prefix for cloud hosts
 - `src/lib/psa-client.ts` — PSA REST client: Basic auth (`companyId+publicKey:privateKey`), `clientId` header, 429 retry honoring Retry-After (capped), one 5xx retry, Link-header pagination, `CwApiError`
 - `src/lib/automate-client.ts` — Automate client: token via `/cwa/api/v1/apitoken`, cached, refreshed on 401
-- `src/tools/psa.ts` — `SEARCHES` spec array drives 12 search tools; bespoke tools for ticket/company/time/board workflows; `psa_api_request` escape hatch
+- `src/lib/screenconnect-client.ts` — Control (ScreenConnect) client, BETA: forms-auth login + cookie/antiforgery, generic passthrough; endpoint shapes are version-dependent
+- `src/tools/psa.ts` — `SEARCHES` spec array drives the search tools; bespoke tools for ticket/company/time/expense/board workflows; `psa_api_request` escape hatch
 - `src/tools/automate.ts` — Automate tools, registered only when configured
+- `src/tools/screenconnect.ts` — Control tools (beta), registered only when `CW_SCREENCONNECT_*` is set
 - `test/` — vitest; server tests run end-to-end through `InMemoryTransport` with injected `fetchImpl`
 
 ## Commands

@@ -65,4 +65,19 @@ describe("loadConfig", () => {
     });
     expect(config.automate?.baseUrl).toBe("https://automate.example.com");
   });
+
+  it("enables screenconnect only when all three vars are present", () => {
+    expect(loadConfig(PSA_ENV).screenconnect).toBeUndefined();
+    const config = loadConfig({
+      ...PSA_ENV,
+      CW_SCREENCONNECT_URL: "https://x.screenconnect.com/",
+      CW_SCREENCONNECT_USERNAME: "admin",
+      CW_SCREENCONNECT_PASSWORD: "pw",
+    });
+    expect(config.screenconnect).toEqual({
+      baseUrl: "https://x.screenconnect.com",
+      username: "admin",
+      password: "pw",
+    });
+  });
 });

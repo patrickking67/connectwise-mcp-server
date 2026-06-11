@@ -51,6 +51,8 @@ describe("connectwise MCP server", () => {
       "psa_system_info",
       "psa_search_project_tickets",
       "psa_search_purchase_orders",
+      "psa_search_expenses",
+      "psa_create_expense",
       "psa_get_agreement_additions",
       "psa_get_ticket_tasks",
     ]) {
@@ -77,6 +79,20 @@ describe("connectwise MCP server", () => {
     );
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name)).toContain("automate_search_computers");
+  });
+
+  it("registers screenconnect tools only when configured", async () => {
+    const base = await connect(CONFIG, vi.fn());
+    expect((await base.listTools()).tools.some((t) => t.name.startsWith("screenconnect_"))).toBe(false);
+
+    const withSc = await connect(
+      {
+        ...CONFIG,
+        screenconnect: { baseUrl: "https://x.screenconnect.com", username: "u", password: "p" },
+      },
+      vi.fn(),
+    );
+    expect((await withSc.listTools()).tools.map((t) => t.name)).toContain("screenconnect_list_sessions");
   });
 
   it("searches tickets with default compact fields and strips nulls", async () => {

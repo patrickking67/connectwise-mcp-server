@@ -14,6 +14,12 @@ export interface AutomateConfig {
   clientId: string;
 }
 
+export interface ScreenConnectConfig {
+  baseUrl: string;
+  username: string;
+  password: string;
+}
+
 export interface EntraConfig {
   tenantId: string;
   clientId: string;
@@ -25,6 +31,7 @@ export interface AppConfig {
   entra?: EntraConfig;
   psa?: PsaConfig;
   automate?: AutomateConfig;
+  screenconnect?: ScreenConnectConfig;
 }
 
 /**
@@ -95,6 +102,19 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       username: auto.username!.trim(),
       password: auto.password!.trim(),
       clientId: auto.clientId!.trim(),
+    };
+  }
+
+  const sc = {
+    baseUrl: env.CW_SCREENCONNECT_URL,
+    username: env.CW_SCREENCONNECT_USERNAME,
+    password: env.CW_SCREENCONNECT_PASSWORD,
+  };
+  if (Object.values(sc).every((v) => v?.trim())) {
+    config.screenconnect = {
+      baseUrl: sc.baseUrl!.trim().replace(/\/+$/, ""),
+      username: sc.username!.trim(),
+      password: sc.password!.trim(),
     };
   }
 

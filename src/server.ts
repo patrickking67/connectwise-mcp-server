@@ -2,14 +2,17 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AppConfig } from "./config.js";
 import { PsaClient, type ClientDeps } from "./lib/psa-client.js";
 import { AutomateClient } from "./lib/automate-client.js";
+import { ScreenConnectClient } from "./lib/screenconnect-client.js";
 import { registerPsaTools } from "./tools/psa.js";
 import { registerAutomateTools } from "./tools/automate.js";
+import { registerScreenConnectTools } from "./tools/screenconnect.js";
 
 export const SERVER_NAME = "connectwise";
 export const SERVER_VERSION = "0.1.0";
 
 const INSTRUCTIONS = `Unified ConnectWise MCP server. psa_* tools cover ConnectWise PSA (Manage);
-automate_* tools cover ConnectWise Automate (RMM) when configured.
+automate_* tools cover ConnectWise Automate (RMM) and screenconnect_* tools cover
+ConnectWise Control (ScreenConnect, beta) when those modules are configured.
 
 PSA condition syntax (the \`conditions\` parameters):
 - Operators: =, !=, <, <=, >, >=, contains, like, in, not. Combine with and/or, group with ().
@@ -36,6 +39,9 @@ export function createServer(config: AppConfig, deps: ClientDeps = {}): McpServe
   }
   if (config.automate) {
     registerAutomateTools(server, new AutomateClient(config.automate, deps));
+  }
+  if (config.screenconnect) {
+    registerScreenConnectTools(server, new ScreenConnectClient(config.screenconnect, deps));
   }
   return server;
 }

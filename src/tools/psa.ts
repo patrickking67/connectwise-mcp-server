@@ -131,6 +131,16 @@ const SEARCHES: SearchSpec[] = [
     defaultFields: "id,poNumber,status/name,vendorCompany/identifier,shipmentDate,total,closedFlag",
   },
   {
+    name: "psa_search_expenses",
+    title: "Search expense entries",
+    path: "/expense/entries",
+    description: "Search PSA expense entries (reimbursable/billable expenses logged against tickets, projects, or charge codes).",
+    conditionHint:
+      'member/identifier="pking" and date > [2026-06-01T00:00:00Z], chargeToType="ServiceTicket" and chargeToId=1234, billableOption="Billable"',
+    defaultFields:
+      "id,type/name,company/identifier,member/identifier,chargeToType,chargeToId,amount,billableOption,date,notes,classification/name",
+  },
+  {
     name: "psa_search_opportunities",
     title: "Search sales opportunities",
     path: "/sales/opportunities",
@@ -459,6 +469,57 @@ export function registerPsaTools(server: McpServer, client: PsaClient): void {
         workRole: args.workRole ? { name: args.workRole } : undefined,
       };
       return jsonResult(await client.post("/time/entries", body));
+    }),
+  );
+
+  server.registerTool(
+    "psa_create_expense",
+    {
+      title: "Create expense entry",
+      description:
+        "Log an expense against a ticket, project ticket, activity, or charge code. type, amount, and date are required.",
+      inputSchema: {
+        expenseType: z.string().describe('Expense type name, e.g. "Mileage", "Meals", "Airfare"'),
+        amount: z.number().describe("Expense amount"),
+        date: z.string().describe("Date of expense, ISO-8601 e.g. 2026-06-10T00:00:00Z"),
+        chargeToType: z.enum(["ServiceTicket", "ProjectTicket", "ChargeCode", "Activity"]).optional(),
+        chargeToId: z.number().int().optional().describe("Id of the ticket/activity/charge code"),
+        companyIdentifier: z.string().optional().describe("Company identifier (derives from charge target if omitted)"),
+        billableOption: z.enum(["Billable", "DoNotBill", "NoCharge", "NoDefault"]).optional(),
+        notes: z.string().optional(),
+        classification: z.string().optional().describe("Expense classification name (e.g. Billable, Non-Billable)"),
+        paymentMethod: z.string().optional().describe("Payment method name"),
+        memberIdentifier: z.string().optional().describe("Member to log for (defaults to the API member)"),
+      },
+      annotations: { title: "Create expense entry", readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    safeHandler(async (args: {
+      expenseType: string;
+      amount: number;
+      date: string;
+      chargeToType?: string;
+      chargeToId?: number;
+      companyIdentifier?: string;
+      billableOption?: string;
+      notes?: string;
+      classification?: string;
+      paymentMethod?: string;
+      memberIdentifier?: string;
+    }) => {
+      const body = {
+        type: { name: args.expenseType },
+        amount: args.amount,
+        date: args.date,
+        chargeToType: args.chargeToType,
+        chargeToId: args.chargeToId,
+        company: args.companyIdentifier ? { identifier: args.companyIdentifier } : undefined,
+        billableOption: args.billableOption,
+        notes: args.notes,
+        classification: args.classification ? { name: args.classification } : undefined,
+        paymentMethod: args.paymentMethod ? { name: args.paymentMethod } : undefined,
+        member: args.memberIdentifier ? { identifier: args.memberIdentifier } : undefined,
+      };
+      return jsonResult(await client.post("/expense/entries", body));
     }),
   );
 

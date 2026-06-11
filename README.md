@@ -2,9 +2,9 @@
 
 Unified ConnectWise MCP server — use ConnectWise **PSA (Manage)** and **Automate** from Claude and any other MCP client, locally or as a **remote MCP connector** (claude.ai custom connector, Claude Code, Claude Desktop, API).
 
-- **PSA (Manage):** 23 tools — ticket search/create/update/notes, companies, contacts, configurations (assets), time entries, projects, opportunities, agreements, invoices, members, activities, schedule, boards, plus a `psa_api_request` escape hatch covering the full 1,800+ endpoint REST surface.
+- **PSA (Manage):** 29 tools — ticket search/create/update/notes/tasks, companies, contacts, configurations (assets), time entries, expenses, projects, project tickets, opportunities, agreements + additions, invoices, members, activities, schedule, boards, purchase orders, plus a `psa_api_request` escape hatch covering the full 1,800+ endpoint REST surface.
 - **Automate (RMM):** optional module (enabled by env vars) — computers, clients, and a guarded raw API tool.
-- **ScreenConnect:** on the roadmap (its API is instance/extension-specific; see below).
+- **Control (ScreenConnect):** optional **beta** module (enabled by env vars) — remote-access session listing and an authenticated passthrough; forms-auth, instance/version-dependent.
 
 Transport is **stateless streamable HTTP**, so any number of replicas can serve traffic — built to run on Azure Container Apps (scale-to-zero) but portable to any container host. A stdio entry point is included for local use.
 
@@ -101,7 +101,7 @@ Any other container host (Railway, Fly.io, Cloud Run, a VPS) works the same way:
 
 ## Claude plugin + marketplace
 
-This repo also ships a **Claude Code plugin** that wraps the hosted server with auto-activating MSP workflow skills (ticket triage, time entry, client overview, ticket creation) and `/cw-status` + `/cw-triage` commands. The repo root is a marketplace, so installing is two lines:
+This repo also ships a **Claude Code plugin** that wraps the hosted server with 13 auto-activating MSP workflow skills (ticket triage, ticket creation, time, expenses, client overview, asset management, projects, agreements & billing, sales pipeline, procurement, dispatch, RMM, remote support) and `/cw-status` + `/cw-triage` commands. The repo root is a marketplace, so installing is two lines:
 
 ```
 /plugin marketplace add patrickking67/connectwise-mcp
@@ -112,7 +112,7 @@ Then set `CONNECTWISE_MCP_URL` (your `/mcp` endpoint) and `CONNECTWISE_MCP_TOKEN
 
 ## Roadmap
 
-- **ScreenConnect (Control) module** — needs instance-specific extension/API details; the architecture has a slot for a third client + tool module.
+- **Harden the Control (ScreenConnect) module** — it ships as beta (forms-auth, version-dependent); validate against live instances and add session actions.
 - Callback (webhook) receiver for PSA ticket events.
 
 ## Layout
