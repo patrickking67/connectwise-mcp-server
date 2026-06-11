@@ -4,6 +4,7 @@
   "description": "Unified ConnectWise MCP server (PSA/Manage + Automate) — remote MCP connector for AI clients",
   "type": "module",
   "main": "dist/index.js",
+  "license": "MIT",
   "engines": {
     "node": ">=20"
   },

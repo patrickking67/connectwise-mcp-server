@@ -99,6 +99,17 @@ Any other container host (Railway, Fly.io, Cloud Run, a VPS) works the same way:
 - **Per-user auth:** set `AZURE_TENANT_ID` + `AZURE_CLIENT_ID` and the server validates Microsoft Entra bearer JWTs (signature/issuer/audience/expiry) and serves RFC 9728 OAuth discovery metadata — see [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md). Works alongside or instead of the shared token.
 - Destructive guardrails: `psa_api_request` refuses `DELETE` without `confirm: true`; all non-GET Automate requests require `confirm: true`.
 
+## Claude plugin + marketplace
+
+This repo also ships a **Claude Code plugin** that wraps the hosted server with auto-activating MSP workflow skills (ticket triage, time entry, client overview, ticket creation) and `/cw-status` + `/cw-triage` commands. The repo root is a marketplace, so installing is two lines:
+
+```
+/plugin marketplace add patrickking67/connectwise-mcp
+/plugin install connectwise@connectwise-mcp
+```
+
+Then set `CONNECTWISE_MCP_URL` (your `/mcp` endpoint) and `CONNECTWISE_MCP_TOKEN`. Details in [plugins/connectwise/README.md](plugins/connectwise/README.md).
+
 ## Roadmap
 
 - **ScreenConnect (Control) module** — needs instance-specific extension/API details; the architecture has a slot for a third client + tool module.

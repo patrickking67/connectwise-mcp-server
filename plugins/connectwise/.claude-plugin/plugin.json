@@ -1,0 +1,13 @@
+{
+  "name": "connectwise",
+  "version": "0.1.0",
+  "description": "ConnectWise PSA (Manage) + Automate for Claude — tickets, companies, contacts, configurations, time, agreements, and MSP workflow skills.",
+  "author": {
+    "name": "Patrick King",
+    "email": "patrickk@divergeit.com"
+  },
+  "homepage": "https://github.com/patrickking67/connectwise-mcp",
+  "repository": "https://github.com/patrickking67/connectwise-mcp",
+  "license": "MIT",
+  "keywords": ["connectwise", "psa", "manage", "msp", "rmm", "automate", "helpdesk", "ticketing"]
+}

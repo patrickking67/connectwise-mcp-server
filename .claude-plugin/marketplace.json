@@ -1,0 +1,21 @@
+{
+  "name": "connectwise-mcp",
+  "owner": {
+    "name": "Patrick King",
+    "email": "patrickk@divergeit.com"
+  },
+  "metadata": {
+    "description": "ConnectWise PSA (Manage) + Automate tools and MSP workflow skills for Claude.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "connectwise",
+      "source": "./plugins/connectwise",
+      "description": "Run ConnectWise PSA (Manage) and Automate from Claude: search and manage tickets, companies, contacts, configurations, time, agreements, and more — plus workflow skills for triage, time entry, client lookup, and ticket creation.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "keywords": ["connectwise", "psa", "manage", "msp", "rmm", "automate", "helpdesk", "ticketing"]
+    }
+  ]
+}

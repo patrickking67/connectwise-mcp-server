@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "connectwise": {
+      "type": "http",
+      "url": "${CONNECTWISE_MCP_URL}",
+      "headers": {
+        "Authorization": "Bearer ${CONNECTWISE_MCP_TOKEN}"
+      }
+    }
+  }
+}
