@@ -49,6 +49,10 @@ describe("connectwise MCP server", () => {
       "psa_get_board_info",
       "psa_api_request",
       "psa_system_info",
+      "psa_search_project_tickets",
+      "psa_search_purchase_orders",
+      "psa_get_agreement_additions",
+      "psa_get_ticket_tasks",
     ]) {
       expect(names).toContain(expected);
     }

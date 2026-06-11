@@ -114,6 +114,23 @@ const SEARCHES: SearchSpec[] = [
       "id,name,company/identifier,status/name,board/name,manager/identifier,estimatedEnd,actualHours,budgetHours,closedFlag",
   },
   {
+    name: "psa_search_project_tickets",
+    title: "Search project tickets",
+    path: "/project/tickets",
+    description: "Search project tickets (work items inside projects — separate from service tickets).",
+    conditionHint: 'project/id=123, phase/name contains "Deploy", closedFlag=false, wbsCode="1.2"',
+    defaultFields:
+      "id,summary,wbsCode,project/name,phase/name,status/name,company/identifier,owner/identifier,closedFlag",
+  },
+  {
+    name: "psa_search_purchase_orders",
+    title: "Search purchase orders",
+    path: "/procurement/purchaseorders",
+    description: "Search procurement purchase orders.",
+    conditionHint: 'vendorCompany/identifier="ingram", closedFlag=false, poNumber="PO-1234"',
+    defaultFields: "id,poNumber,status/name,vendorCompany/identifier,shipmentDate,total,closedFlag",
+  },
+  {
     name: "psa_search_opportunities",
     title: "Search sales opportunities",
     path: "/sales/opportunities",
@@ -486,6 +503,54 @@ export function registerPsaTools(server: McpServer, client: PsaClient): void {
         client.getList(`/service/boards/${boardId}/subtypes`, { pageSize: 200, fields: "id,name" }),
       ]);
       return jsonResult({ statuses: statuses.items, types: types.items, subTypes: subTypes.items });
+    }),
+  );
+
+  server.registerTool(
+    "psa_get_agreement_additions",
+    {
+      title: "Get agreement additions",
+      description:
+        "List the additions (billed line items: licenses, seats, products) on one agreement — what the client is actually billed for.",
+      inputSchema: {
+        agreementId: z.number().int(),
+        conditions: z.string().optional().describe('e.g. cancelledDate=null or agreementStatus="Active"'),
+        ...pageShape,
+      },
+      annotations: { title: "Get agreement additions", ...READ_ONLY },
+    },
+    safeHandler(async ({ agreementId, conditions, page, pageSize }: {
+      agreementId: number;
+      conditions?: string;
+      page?: number;
+      pageSize?: number;
+    }) => {
+      const result = await client.getList(`/finance/agreements/${agreementId}/additions`, {
+        conditions,
+        page,
+        pageSize,
+        fields:
+          "id,product/identifier,description,quantity,unitPrice,unitCost,effectiveDate,cancelledDate,agreementStatus,lessIncluded",
+      });
+      return jsonResult({ count: result.items.length, hasMore: result.hasMore, items: result.items });
+    }),
+  );
+
+  server.registerTool(
+    "psa_get_ticket_tasks",
+    {
+      title: "Get ticket tasks",
+      description: "List the checklist tasks on a service ticket.",
+      inputSchema: { ticketId: z.number().int(), ...pageShape },
+      annotations: { title: "Get ticket tasks", ...READ_ONLY },
+    },
+    safeHandler(async ({ ticketId, page, pageSize }: { ticketId: number; page?: number; pageSize?: number }) => {
+      const result = await client.getList(`/service/tickets/${ticketId}/tasks`, {
+        page,
+        pageSize,
+        fields: "id,summary,notes,closedFlag,resolution",
+      });
+      return jsonResult({ count: result.items.length, hasMore: result.hasMore, items: result.items });
     }),
   );
 
