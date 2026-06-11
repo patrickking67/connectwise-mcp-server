@@ -42,5 +42,6 @@ Unified ConnectWise MCP server exposing ConnectWise PSA (Manage) and optionally 
 
 - ConnectWise credentials are server-side env vars/secrets only — never log them, never return them in tool output
 - `MCP_AUTH_TOKEN` gates the endpoint; comparisons are timing-safe; keep the path-token route working (claude.ai custom connectors cannot send headers)
+- Entra per-user auth (`src/lib/entra-auth.ts`): validates Entra v2 JWTs via jose when `AZURE_TENANT_ID`/`AZURE_CLIENT_ID` are set; serves `/.well-known/oauth-protected-resource`; coexists with the shared token — setup in docs/ENTRA_SETUP.md
 - `psa_api_request` must refuse DELETE without `confirm: true`; Automate refuses all non-GET without `confirm: true` — do not weaken these guardrails
 - Do not deploy or push from this repo without being explicitly asked

@@ -14,9 +14,15 @@ export interface AutomateConfig {
   clientId: string;
 }
 
+export interface EntraConfig {
+  tenantId: string;
+  clientId: string;
+}
+
 export interface AppConfig {
   port: number;
   authToken?: string;
+  entra?: EntraConfig;
   psa?: PsaConfig;
   automate?: AutomateConfig;
 }
@@ -67,6 +73,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
         .map((k) => `CW_PSA_${k.replace(/([A-Z])/g, "_$1").toUpperCase()}`)
         .join(", ")}`,
     );
+  }
+
+  const tenantId = env.AZURE_TENANT_ID?.trim();
+  const entraClientId = env.AZURE_CLIENT_ID?.trim();
+  if (tenantId && entraClientId) {
+    config.entra = { tenantId, clientId: entraClientId };
+  } else if (tenantId || entraClientId) {
+    throw new Error("Incomplete Entra configuration: set both AZURE_TENANT_ID and AZURE_CLIENT_ID");
   }
 
   const auto = {

@@ -49,6 +49,12 @@ describe("loadConfig", () => {
     expect(config.port).toBe(8080);
   });
 
+  it("enables Entra auth when both vars are present, throws on partial", () => {
+    const config = loadConfig({ ...PSA_ENV, AZURE_TENANT_ID: "tid", AZURE_CLIENT_ID: "cid" });
+    expect(config.entra).toEqual({ tenantId: "tid", clientId: "cid" });
+    expect(() => loadConfig({ ...PSA_ENV, AZURE_TENANT_ID: "tid" })).toThrow(/AZURE_CLIENT_ID/);
+  });
+
   it("enables automate only when all four vars are present", () => {
     const config = loadConfig({
       ...PSA_ENV,

@@ -8,6 +8,8 @@ Unified ConnectWise MCP server — use ConnectWise **PSA (Manage)** and **Automa
 
 Transport is **stateless streamable HTTP**, so any number of replicas can serve traffic — built to run on Azure Container Apps (scale-to-zero) but portable to any container host. A stdio entry point is included for local use.
 
+**Guides:** [docs/SETUP.md](docs/SETUP.md) — zero-to-working walkthrough (credentials, deploy, connect, troubleshoot) · [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md) — per-user Microsoft Entra sign-in instead of the shared token.
+
 ## Prerequisites
 
 1. **PSA API Member keys** (recommended over personal keys): PSA → System → Members → API Members → create member with an appropriate security role → API Keys tab → generate public/private key pair.
@@ -94,13 +96,12 @@ Any other container host (Railway, Fly.io, Cloud Run, a VPS) works the same way:
 
 - ConnectWise credentials live **server-side only**; MCP clients never see them. Scope the API member's security role to what you actually want AI to do (the PSA security role matrix applies to API calls).
 - The endpoint token can be sent as a Bearer header or embedded in the URL path (capability URL) for clients that can't send headers. Rotate it by updating the secret.
+- **Per-user auth:** set `AZURE_TENANT_ID` + `AZURE_CLIENT_ID` and the server validates Microsoft Entra bearer JWTs (signature/issuer/audience/expiry) and serves RFC 9728 OAuth discovery metadata — see [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md). Works alongside or instead of the shared token.
 - Destructive guardrails: `psa_api_request` refuses `DELETE` without `confirm: true`; all non-GET Automate requests require `confirm: true`.
-- Upgrade path: front with OAuth (e.g. Entra ID via an OAuth-aware gateway) if you need per-user identity instead of a shared token.
 
 ## Roadmap
 
 - **ScreenConnect (Control) module** — needs instance-specific extension/API details; the architecture has a slot for a third client + tool module.
-- OAuth 2.1 authorization for the MCP endpoint (per-user identity, claude.ai OAuth flow).
 - Callback (webhook) receiver for PSA ticket events.
 
 ## Layout
