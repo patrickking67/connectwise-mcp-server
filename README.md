@@ -8,7 +8,7 @@ Unified ConnectWise MCP server — use ConnectWise **PSA (Manage)** and **Automa
 
 Transport is **stateless streamable HTTP**, so any number of replicas can serve traffic — built to run on Azure Container Apps (scale-to-zero) but portable to any container host. A stdio entry point is included for local use.
 
-**Guides:** [docs/SETUP.md](docs/SETUP.md) — zero-to-working walkthrough (credentials, deploy, connect, troubleshoot) · [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md) — per-user Microsoft Entra sign-in instead of the shared token.
+**Guides:** [docs/GO-LIVE.md](docs/GO-LIVE.md) — remaining steps to flip it on · [docs/SETUP.md](docs/SETUP.md) — zero-to-working walkthrough (credentials, deploy, connect, troubleshoot) · [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md) — per-user Microsoft Entra sign-in instead of the shared token.
 
 ## Prerequisites
 
