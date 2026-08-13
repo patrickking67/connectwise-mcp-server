@@ -1,0 +1,263 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/mcpb/main/schemas/mcpb-manifest-latest.schema.json",
+  "manifest_version": "0.4",
+  "name": "connectwise-mcp-server",
+  "display_name": "ConnectWise",
+  "version": "0.2.0",
+  "description": "ConnectWise PSA (Manage), Automate, and Control in one MCP server. Read and write.",
+  "long_description": "One connector for the ConnectWise stack. PSA (Manage) is always available; Automate and Control (ScreenConnect) register themselves only when their credentials are configured, so an unconfigured integration contributes no tools rather than tools that fail.\n\nPSA covers tickets, companies, contacts, configurations, time and expense entries, projects, agreements, invoices, opportunities, members, activities and schedule entries, plus board metadata and an escape hatch for endpoints without a dedicated tool.\n\nUNLIKE THE OTHER CONNECTORS IN THIS FLEET, THIS ONE WRITES. It can create and update tickets, add ticket notes, and create time and expense entries. Those tools carry explicit write annotations so a client can prompt before using them. Two guardrails are not optional and must not be weakened: the raw PSA request tool refuses DELETE without confirm: true, and the raw Automate request tool refuses every non-GET without it.\n\nThis bundle is the LOCAL install: it runs on your own machine and holds the ConnectWise credentials there. The same tools are also served by a remote deployment on Azure Container Apps for clients that cannot launch a local process \u2014 see the repository documentation.",
+  "author": {
+    "name": "Patrick King"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/patrickking67/connectwise-mcp.git"
+  },
+  "documentation": "https://github.com/patrickking67/connectwise-mcp/blob/main/README.md",
+  "support": "https://github.com/patrickking67/connectwise-mcp/issues",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/stdio.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/stdio.js"
+      ],
+      "env": {
+        "CW_PSA_SITE": "${user_config.psa_site}",
+        "CW_PSA_COMPANY_ID": "${user_config.psa_company_id}",
+        "CW_PSA_PUBLIC_KEY": "${user_config.psa_public_key}",
+        "CW_PSA_PRIVATE_KEY": "${user_config.psa_private_key}",
+        "CW_PSA_CLIENT_ID": "${user_config.psa_client_id}",
+        "CW_AUTOMATE_URL": "${user_config.automate_url}",
+        "CW_AUTOMATE_USERNAME": "${user_config.automate_username}",
+        "CW_AUTOMATE_PASSWORD": "${user_config.automate_password}",
+        "CW_AUTOMATE_CLIENT_ID": "${user_config.automate_client_id}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "psa_search_tickets",
+      "description": "Search service tickets"
+    },
+    {
+      "name": "psa_search_companies",
+      "description": "Search companies"
+    },
+    {
+      "name": "psa_search_contacts",
+      "description": "Search contacts"
+    },
+    {
+      "name": "psa_search_configurations",
+      "description": "Search configurations (assets)"
+    },
+    {
+      "name": "psa_search_time_entries",
+      "description": "Search time entries"
+    },
+    {
+      "name": "psa_search_projects",
+      "description": "Search projects"
+    },
+    {
+      "name": "psa_search_project_tickets",
+      "description": "Search project tickets"
+    },
+    {
+      "name": "psa_search_purchase_orders",
+      "description": "Search purchase orders"
+    },
+    {
+      "name": "psa_search_expenses",
+      "description": "Search expense entries"
+    },
+    {
+      "name": "psa_search_opportunities",
+      "description": "Search sales opportunities"
+    },
+    {
+      "name": "psa_search_agreements",
+      "description": "Search agreements"
+    },
+    {
+      "name": "psa_search_invoices",
+      "description": "Search invoices"
+    },
+    {
+      "name": "psa_search_members",
+      "description": "Search members (technicians)"
+    },
+    {
+      "name": "psa_search_activities",
+      "description": "Search sales activities"
+    },
+    {
+      "name": "psa_search_schedule_entries",
+      "description": "Search schedule entries"
+    },
+    {
+      "name": "psa_system_info",
+      "description": "PSA system info"
+    },
+    {
+      "name": "psa_get_ticket",
+      "description": "Get ticket"
+    },
+    {
+      "name": "psa_get_ticket_notes",
+      "description": "Get ticket notes"
+    },
+    {
+      "name": "psa_create_ticket",
+      "description": "Create ticket \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "psa_update_ticket",
+      "description": "Update ticket \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "psa_add_ticket_note",
+      "description": "Add ticket note \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "psa_get_company",
+      "description": "Get company"
+    },
+    {
+      "name": "psa_create_time_entry",
+      "description": "Create time entry \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "psa_create_expense",
+      "description": "Create expense entry \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "psa_list_boards",
+      "description": "List service boards"
+    },
+    {
+      "name": "psa_get_board_info",
+      "description": "Get board statuses/types/subtypes"
+    },
+    {
+      "name": "psa_get_agreement_additions",
+      "description": "Get agreement additions"
+    },
+    {
+      "name": "psa_get_ticket_tasks",
+      "description": "Get ticket tasks"
+    },
+    {
+      "name": "psa_api_request",
+      "description": "Raw PSA API request \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "automate_search_computers",
+      "description": "Search Automate computers"
+    },
+    {
+      "name": "automate_get_computer",
+      "description": "Get Automate computer"
+    },
+    {
+      "name": "automate_list_clients",
+      "description": "List Automate clients"
+    },
+    {
+      "name": "automate_api_request",
+      "description": "Raw Automate API request \u2014 writes to ConnectWise"
+    },
+    {
+      "name": "screenconnect_list_sessions",
+      "description": "List ScreenConnect sessions (beta)"
+    },
+    {
+      "name": "screenconnect_api_request",
+      "description": "Raw ScreenConnect API request (beta) \u2014 writes to ConnectWise"
+    }
+  ],
+  "tools_generated": false,
+  "keywords": [
+    "connectwise",
+    "psa",
+    "manage",
+    "automate",
+    "screenconnect",
+    "msp",
+    "mcp"
+  ],
+  "license": "MIT",
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=20"
+    }
+  },
+  "user_config": {
+    "psa_site": {
+      "type": "string",
+      "title": "PSA site",
+      "description": "Your ConnectWise Manage host, e.g. na.myconnectwise.net. The api- prefix is added automatically for cloud hosts.",
+      "required": true,
+      "default": "na.myconnectwise.net"
+    },
+    "psa_company_id": {
+      "type": "string",
+      "title": "PSA company id",
+      "description": "The company identifier you log in with.",
+      "required": true
+    },
+    "psa_public_key": {
+      "type": "string",
+      "title": "PSA public key",
+      "description": "Public key of an API member. Give that member only the permissions these tools need \u2014 the connector can create tickets and time entries.",
+      "required": true
+    },
+    "psa_private_key": {
+      "type": "string",
+      "title": "PSA private key",
+      "description": "The matching private key. Supply it from your secret manager.",
+      "required": true,
+      "sensitive": true
+    },
+    "psa_client_id": {
+      "type": "string",
+      "title": "ConnectWise clientId",
+      "description": "The developer clientId GUID sent with every request. Issued by ConnectWise; required by the API.",
+      "required": true,
+      "sensitive": true
+    },
+    "automate_url": {
+      "type": "string",
+      "title": "Automate URL (optional)",
+      "description": "e.g. https://automate.example.com. Leave blank to register no Automate tools.",
+      "required": false
+    },
+    "automate_username": {
+      "type": "string",
+      "title": "Automate username (optional)",
+      "required": false,
+      "description": "Automate account username. Only used when the Automate URL is set."
+    },
+    "automate_password": {
+      "type": "string",
+      "title": "Automate password (optional)",
+      "required": false,
+      "sensitive": true,
+      "description": "Automate account password. Supply it from your secret manager."
+    },
+    "automate_client_id": {
+      "type": "string",
+      "title": "Automate clientId (optional)",
+      "required": false,
+      "sensitive": true,
+      "description": "Automate developer clientId GUID, sent with every Automate request."
+    }
+  }
+}
