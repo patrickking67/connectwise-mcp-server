@@ -5,7 +5,34 @@ import { loadConfig } from "./config.js";
 import { entraIssuer, verifyEntraToken } from "./lib/entra-auth.js";
 import { createServer, SERVER_NAME, SERVER_VERSION } from "./server.js";
 
+/** How long a drain may take before the process leaves anyway. */
+const SHUTDOWN_GRACE_MS = 10_000;
+
 const config = loadConfig();
+
+// Fail closed. This connector does not only read: it can create and update
+// tickets, add notes, and create time and expense entries, and it carries raw
+// request escape hatches for all three products. An endpoint that serves those to
+// anyone who finds the URL is not a degraded deployment of it — it is a different
+// and unacceptable one.
+//
+// The stdio entry deliberately does not do this. There the operating system's user
+// account is the boundary, and a client launches the process before anyone has
+// configured anything. A container that cannot authenticate anybody should not
+// report itself healthy.
+if (!config.authToken && !config.entra) {
+  if (process.env.MCP_ALLOW_ANONYMOUS === "true") {
+    console.error(
+      "WARNING: no MCP_AUTH_TOKEN and no Entra configuration — this endpoint is UNAUTHENTICATED and can WRITE to ConnectWise. This is only ever acceptable on a local, non-routable test run.",
+    );
+  } else {
+    console.error(
+      "Refusing to start an unauthenticated remote server. Set MCP_AUTH_TOKEN, or set AZURE_TENANT_ID and AZURE_CLIENT_ID for Entra ID per-user authentication. MCP_ALLOW_ANONYMOUS=true overrides this for local testing only.",
+    );
+    process.exit(1);
+  }
+}
+
 const app = express();
 app.disable("x-powered-by");
 // Behind Container Apps ingress: honor x-forwarded-proto/host for absolute URLs.
@@ -106,13 +133,23 @@ app.get(
 app.post(["/mcp", "/mcp/:token"], requireAuth, handleMcp);
 app.all(["/mcp", "/mcp/:token"], methodNotAllowed);
 
-app.listen(config.port, "0.0.0.0", () => {
-  console.log(`connectwise-mcp v${SERVER_VERSION} listening on :${config.port}`);
+const server = app.listen(config.port, "0.0.0.0", () => {
+  console.log(`${SERVER_NAME} v${SERVER_VERSION} listening on :${config.port}`);
   console.log(`  PSA (Manage) tools:  ${config.psa ? `enabled (${config.psa.site})` : "disabled — set CW_PSA_* env vars"}`);
   console.log(`  Automate tools:      ${config.automate ? `enabled (${config.automate.baseUrl})` : "disabled — set CW_AUTOMATE_* env vars"}`);
   console.log(`  ScreenConnect (beta):${config.screenconnect ? ` enabled (${config.screenconnect.baseUrl})` : " disabled — set CW_SCREENCONNECT_* env vars"}`);
   console.log(`  Entra per-user auth:  ${config.entra ? `enabled (tenant ${config.entra.tenantId})` : "disabled — set AZURE_TENANT_ID + AZURE_CLIENT_ID"}`);
-  if (!config.authToken && !config.entra) {
-    console.warn("  WARNING: no MCP_AUTH_TOKEN or Entra config — the /mcp endpoint is unauthenticated.");
-  }
 });
+
+// Container Apps sends SIGTERM and then waits before killing the container.
+// Without this the process dies immediately as PID 1 and any request in flight is
+// severed mid-response, which the caller sees as a network error rather than as a
+// deploy. That matters more here than on a read-only connector: a severed write is
+// ambiguous, and the caller cannot tell whether the ticket was created.
+for (const signal of ["SIGTERM", "SIGINT"] as const) {
+  process.once(signal, () => {
+    console.error(`${signal} received; draining connections`);
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), SHUTDOWN_GRACE_MS).unref();
+  });
+}
