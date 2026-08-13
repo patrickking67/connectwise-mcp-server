@@ -13,7 +13,9 @@ Unified ConnectWise MCP server exposing ConnectWise PSA (Manage) and optionally 
 
 ## Repo layout
 
-- `src/index.ts` — HTTP entry: Express app, `/healthz`, `/mcp` + `/mcp/:token`, bearer/path-token auth (timing-safe), fresh server+transport per request
+- `src/index.ts` — HTTP entry: Express app, `/healthz`, `/mcp` + `/mcp/:token`, bearer/path-token auth (timing-safe), fresh server+transport per request, fail-closed startup guard, SIGTERM drain
+- `manifest.json` — MCPB bundle manifest for the local stdio install; CI asserts it lists exactly the tools the server registers
+- `infra/main.bicep` — the Azure Container Apps topology (see docs/deploying-azure.md)
 - `src/stdio.ts` — local stdio entry
 - `src/server.ts` — `createServer(config, deps)`; server instructions document PSA condition syntax
 - `src/config.ts` — env parsing; `normalizePsaSite` adds the `api-` prefix for cloud hosts
@@ -31,6 +33,9 @@ Unified ConnectWise MCP server exposing ConnectWise PSA (Manage) and optionally 
 - `npm run build` — tsc to `dist/`
 - `npm test` — vitest run
 - `npm run typecheck` — tsc over src + test (tsconfig.test.json)
+- `npm run mcpb:validate` / `npm run mcpb:pack` — check and build the MCPB bundle
+- `npm run start:remote` — run the HTTP entry from `dist/`
+- `npm run docker:build` — build the remote transport's image
 
 ## Key conventions
 
@@ -44,6 +49,7 @@ Unified ConnectWise MCP server exposing ConnectWise PSA (Manage) and optionally 
 
 - ConnectWise credentials are server-side env vars/secrets only — never log them, never return them in tool output
 - `MCP_AUTH_TOKEN` gates the endpoint; comparisons are timing-safe; keep the path-token route working (claude.ai custom connectors cannot send headers)
+- The HTTP entry **fails closed**: with neither `MCP_AUTH_TOKEN` nor Entra configured it exits non-zero rather than serving. `MCP_ALLOW_ANONYMOUS=true` overrides it for local testing only. Do not remove that guard — this server writes.
 - Entra per-user auth (`src/lib/entra-auth.ts`): validates Entra v2 JWTs via jose when `AZURE_TENANT_ID`/`AZURE_CLIENT_ID` are set; serves `/.well-known/oauth-protected-resource`; coexists with the shared token — setup in docs/ENTRA_SETUP.md
 - `psa_api_request` must refuse DELETE without `confirm: true`; Automate refuses all non-GET without `confirm: true` — do not weaken these guardrails
 - Do not deploy or push from this repo without being explicitly asked
