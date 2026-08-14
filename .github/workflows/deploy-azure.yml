@@ -1,0 +1,147 @@
+name: Deploy (Azure Container Apps)
+
+# Builds the remote transport's container image and rolls the Container App onto
+# it. The stdio entry is not deployed anywhere — it ships as an MCPB bundle and
+# runs on the user's own machine.
+#
+# OFF UNTIL THE INFRASTRUCTURE EXISTS. The job is gated on the repository variable
+# AZURE_DEPLOY_ENABLED, so this file is inert until someone sets it to 'true'.
+# Azure Container Apps is the deploy target named in this repository's guidance;
+# this is a lane waiting for its resource group rather
+# than a placeholder. docs/deploying-azure.md is the runbook.
+#
+# NO STORED CREDENTIAL. Authentication is OIDC federation — GitHub mints a
+# short-lived token, Entra exchanges it for an Azure one. There is no client
+# secret in this repository or in its Actions secrets to leak or rotate.
+#
+# No third-party action is used here on purpose. az is preinstalled on the
+# GitHub-hosted runner, so the whole deployment path is the CLI plus curl, and
+# there is no supply-chain surface beyond actions/checkout.
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to build and deploy. Defaults to the commit SHA.'
+        required: false
+        type: string
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never two rollouts at once: Container Apps would serve a mix of revisions
+  # while they raced.
+  group: deploy-azure-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and roll the Container App
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: vars.AZURE_DEPLOY_ENABLED == 'true'
+    environment: production
+    permissions:
+      contents: read
+      # Required to mint the OIDC token Entra exchanges. Nothing else is needed:
+      # the workflow writes nothing back to the repository.
+      id-token: write
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP }}
+      AZURE_CONTAINER_REGISTRY: ${{ vars.AZURE_CONTAINER_REGISTRY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Confirm the deployment target is fully configured
+        run: |
+          # Fail here with a readable message rather than three steps later with
+          # an Azure error that does not say which variable is missing.
+          missing=()
+          for var in AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID \
+                     AZURE_RESOURCE_GROUP AZURE_CONTAINER_APP AZURE_CONTAINER_REGISTRY; do
+            [ -n "${!var}" ] || missing+=("$var")
+          done
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing repository variable(s): ${missing[*]}. See docs/deploying-azure.md."
+            exit 1
+          fi
+
+      - name: Sign in to Azure with a federated token
+        run: |
+          set -euo pipefail
+          # The runtime mints an OIDC token scoped to the audience Entra expects
+          # for workload identity federation.
+          token=$(curl -sSf \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api://AzureADTokenExchange" \
+            | jq -r '.value')
+          az login --service-principal \
+            --username "${AZURE_CLIENT_ID}" \
+            --tenant "${AZURE_TENANT_ID}" \
+            --federated-token "${token}" \
+            --output none
+          az account set --subscription "${AZURE_SUBSCRIPTION_ID}"
+
+      - name: Resolve the image tag
+        id: image
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.image_tag }}"
+          if [ -z "$tag" ]; then
+            # A tag push deploys that version; anything else deploys its commit.
+            case "${GITHUB_REF}" in
+              refs/tags/v*) tag="${GITHUB_REF_NAME#v}" ;;
+              *)            tag="${GITHUB_SHA::12}" ;;
+            esac
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "Deploying tag ${tag}."
+
+      - name: Build the image in the registry
+        # az acr build runs the build inside ACR: no Docker daemon on the runner,
+        # and no registry credential ever reaches it.
+        run: |
+          az acr build \
+            --registry "${AZURE_CONTAINER_REGISTRY}" \
+            --image "connectwise-mcp-server:${{ steps.image.outputs.tag }}" \
+            --file Dockerfile \
+            .
+
+      - name: Roll the Container App onto the new image
+        run: |
+          set -euo pipefail
+          registry=$(az acr show --name "${AZURE_CONTAINER_REGISTRY}" --query loginServer -o tsv)
+          az containerapp update \
+            --name "${AZURE_CONTAINER_APP}" \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --image "${registry}/connectwise-mcp-server:${{ steps.image.outputs.tag }}" \
+            --output none
+
+      - name: Verify the new revision serves traffic
+        run: |
+          set -euo pipefail
+          fqdn=$(az containerapp show \
+            --name "${AZURE_CONTAINER_APP}" \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+
+          # A deployment that reports success without the endpoint answering is
+          # worse than a failed one, because nobody goes looking.
+          for attempt in $(seq 1 12); do
+            if curl -sSf --max-time 10 "https://${fqdn}/healthz" > health.json; then
+              echo "Healthy after ${attempt} attempt(s):"
+              cat health.json
+              exit 0
+            fi
+            echo "Attempt ${attempt}: not healthy yet; waiting."
+            sleep 10
+          done
+          echo "::error::${fqdn} did not become healthy within two minutes."
+          exit 1

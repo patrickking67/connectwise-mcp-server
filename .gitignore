@@ -5,3 +5,6 @@ dist/
 !.env.example
 *.log
 .DS_Store
+
+# Packed MCPB bundle — a build artifact, attached to a release rather than tracked.
+*.mcpb

@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: CI reads the repository and nothing else.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Validate MCPB manifest
+        run: npm run mcpb:validate
+
+      - name: Confirm the build left no uncommitted drift
+        run: |
+          # Generated output must be reproducible from source. If building or
+          # testing changes a tracked file, the committed artifact is stale.
+          if ! git diff --exit-code --stat; then
+            echo "::error::Build or test run modified tracked files. Regenerate and commit."
+            exit 1
+          fi
+
+      - name: Confirm the manifest lists the tools the server actually registers
+        run: |
+          # The MCPB manifest is hand-maintained prose plus a generated-looking
+          # tool list, and the two drift the moment someone adds a tool without
+          # touching it. This builds the server with every integration configured
+          # and compares the names, so the bundle cannot advertise a tool surface
+          # the server does not have.
+          #
+          # The credentials below are placeholders and reach nothing: registration
+          # is decided by whether the variables are set, not by whether they work.
+          node --input-type=module -e "
+            const env = {
+              CW_PSA_SITE: 'api-na.myconnectwise.net',
+              CW_PSA_COMPANY_ID: 'ci', CW_PSA_PUBLIC_KEY: 'ci',
+              CW_PSA_PRIVATE_KEY: 'ci', CW_PSA_CLIENT_ID: 'ci',
+              CW_AUTOMATE_URL: 'https://example.invalid',
+              CW_AUTOMATE_USERNAME: 'ci', CW_AUTOMATE_PASSWORD: 'ci',
+              CW_AUTOMATE_CLIENT_ID: 'ci',
+              CW_SCREENCONNECT_URL: 'https://example.invalid',
+              CW_SCREENCONNECT_USERNAME: 'ci', CW_SCREENCONNECT_PASSWORD: 'ci',
+            };
+            for (const [k, v] of Object.entries(env)) process.env[k] = v;
+
+            const { readFileSync } = await import('node:fs');
+            const { loadConfig } = await import('./dist/config.js');
+            const { createServer } = await import('./dist/server.js');
+
+            const registered = Object.keys(createServer(loadConfig())._registeredTools ?? {}).sort();
+            const declared = JSON.parse(readFileSync('manifest.json', 'utf8')).tools.map(t => t.name).sort();
+
+            const missing = registered.filter(n => !declared.includes(n));
+            const extra = declared.filter(n => !registered.includes(n));
+            if (missing.length || extra.length) {
+              if (missing.length) console.error('::error::manifest.json does not list: ' + missing.join(', '));
+              if (extra.length) console.error('::error::manifest.json lists tools that are not registered: ' + extra.join(', '));
+              process.exit(1);
+            }
+            console.log('manifest.json matches all ' + registered.length + ' registered tools.');
+          "
+
+  dependency-review:
+    name: Dependency review (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+    # Advisory rather than blocking: actions/dependency-review-action needs GitHub
+    # Advanced Security on a private repository. Kept and marked advisory so it
+    # starts working the moment that entitlement arrives, rather than deleted and
+    # forgotten. continue-on-error sits on the STEP, not the job — at job level the
+    # check run still reports as failed, which is the permanent red cross this is
+    # meant to avoid.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Review dependency changes
+        continue-on-error: true
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          comment-summary-in-pr: on-failure

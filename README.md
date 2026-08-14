@@ -1,4 +1,4 @@
-# connectwise-mcp
+# connectwise-mcp-server
 
 Unified ConnectWise MCP server — use ConnectWise **PSA (Manage)** and **Automate** from Claude and any other MCP client, locally or as a **remote MCP connector** (claude.ai custom connector, Claude Code, Claude Desktop, API).
 
@@ -6,9 +6,23 @@ Unified ConnectWise MCP server — use ConnectWise **PSA (Manage)** and **Automa
 - **Automate (RMM):** optional module (enabled by env vars) — computers, clients, and a guarded raw API tool.
 - **Control (ScreenConnect):** optional **beta** module (enabled by env vars) — remote-access session listing and an authenticated passthrough; forms-auth, instance/version-dependent.
 
-Transport is **stateless streamable HTTP**, so any number of replicas can serve traffic — built to run on Azure Container Apps (scale-to-zero) but portable to any container host. A stdio entry point is included for local use.
+It ships in two forms that serve the same 35 tools:
 
-**Guides:** [docs/GO-LIVE.md](docs/GO-LIVE.md) — remaining steps to flip it on · [docs/SETUP.md](docs/SETUP.md) — zero-to-working walkthrough (credentials, deploy, connect, troubleshoot) · [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md) — per-user Microsoft Entra sign-in instead of the shared token.
+| | **Local** | **Remote** |
+|---|---|---|
+| Transport | stdio | Streamable HTTP (stateless) |
+| Entry point | `dist/stdio.js` | `dist/index.js` |
+| Runs | On your machine, beside the client | Azure Container Apps |
+| Holds the ConnectWise credentials | Your machine | Key Vault |
+| Authenticates callers | The OS user account | Shared token or Microsoft Entra ID |
+| Installed as | An MCPB bundle (`npm run mcpb:pack`) | A URL in your client |
+| Reaches | Claude Code, Desktop, on-device Cowork | …and remote Cowork, claude.ai, Microsoft Foundry |
+
+Stateless HTTP means any number of replicas can serve traffic. Azure Container Apps is the deploy target described in [docs/deploying-azure.md](docs/deploying-azure.md), and the image is portable to any container host.
+
+> **This connector writes.** It can create and update tickets, add notes, and create time and expense entries, and it carries raw request escape hatches for all three products. The remote entry therefore **refuses to start** unless `MCP_AUTH_TOKEN` or the Entra pair is configured — an open endpoint is not a degraded deployment of it. `MCP_ALLOW_ANONYMOUS=true` overrides the guard for a local, non-routable test and says so loudly on every start.
+
+**Guides:** [docs/deploying-azure.md](docs/deploying-azure.md) — the Azure runbook (Bicep, Key Vault, OIDC deploys) · [docs/GO-LIVE.md](docs/GO-LIVE.md) — remaining steps to flip it on · [docs/SETUP.md](docs/SETUP.md) — zero-to-working walkthrough (credentials, deploy, connect, troubleshoot) · [docs/ENTRA_SETUP.md](docs/ENTRA_SETUP.md) — per-user Microsoft Entra sign-in instead of the shared token.
 
 ## Prerequisites
 
@@ -46,7 +60,24 @@ npx @modelcontextprotocol/inspector
 # Streamable HTTP -> http://localhost:8080/mcp  (Authorization: Bearer <MCP_AUTH_TOKEN>)
 ```
 
+## Install locally (MCPB bundle)
+
+```bash
+npm ci
+npm run mcpb:pack     # produces connectwise-mcp-server.mcpb
+```
+
+Install it through **Settings → Extensions → Advanced settings** in Claude for macOS or Windows. The installer prompts for the PSA credentials, and for the Automate ones if you want that module.
+
+For Claude Code, point at the stdio entry directly:
+
+```bash
+claude mcp add connectwise -- node /absolute/path/to/connectwise-mcp/dist/stdio.js
+```
+
 ## Deploy to Azure Container Apps
+
+The quick path below creates an app from source and is fine for a first look. For a repeatable deployment — Bicep, Key Vault-backed secrets, a managed identity, and an OIDC-federated deploy workflow — use [`infra/main.bicep`](infra/main.bicep) and follow [docs/deploying-azure.md](docs/deploying-azure.md).
 
 ```bash
 RG=rg-connectwise-mcp
@@ -112,6 +143,7 @@ Then set `CONNECTWISE_MCP_URL` (your `/mcp` endpoint) and `CONNECTWISE_MCP_TOKEN
 
 ## Roadmap
 
+- **Port the rest of the fleet's repository baseline.** The other AmplifyAI connectors carry `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, a governance policy, and a `check-repo-contract.mjs` invariant checker wired into CI. This repository has CI, a changelog and `CLAUDE.md`, but not the rest.
 - **Harden the Control (ScreenConnect) module** — it ships as beta (forms-auth, version-dependent); validate against live instances and add session actions.
 - Callback (webhook) receiver for PSA ticket events.
 
@@ -127,5 +159,8 @@ src/
   lib/automate-client.ts  Automate REST client (token cache + refresh)
   tools/psa.ts        12 spec-driven search tools + 11 workflow tools
   tools/automate.ts   Automate tools (conditional)
-test/                 vitest suites (client, config, end-to-end via InMemoryTransport)
+test/                 vitest suites (client, config, startup guards, end-to-end via InMemoryTransport)
+infra/main.bicep      Azure Container Apps topology
+manifest.json         MCPB bundle manifest for the local install
+Dockerfile            image for the remote transport
 ```

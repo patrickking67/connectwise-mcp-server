@@ -7,8 +7,8 @@ import { registerPsaTools } from "./tools/psa.js";
 import { registerAutomateTools } from "./tools/automate.js";
 import { registerScreenConnectTools } from "./tools/screenconnect.js";
 
-export const SERVER_NAME = "connectwise";
-export const SERVER_VERSION = "0.1.0";
+export const SERVER_NAME = "connectwise-mcp-server";
+export const SERVER_VERSION = "0.2.0";
 
 const INSTRUCTIONS = `Unified ConnectWise MCP server. psa_* tools cover ConnectWise PSA (Manage);
 automate_* tools cover ConnectWise Automate (RMM) and screenconnect_* tools cover

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "_comment": [
+    "Non-secret deployment parameters only, and that is the point: this file is",
+    "committed, so a credential placed here would be a credential in git history.",
+    "psaPublicKey, psaPrivateKey, psaClientId, mcpAuthToken and the Automate",
+    "credentials are declared @secure() in main.bicep and are supplied at deploy",
+    "time from your secret store — see docs/deploying-azure.md. Azure omits",
+    "@secure() values from deployment history.",
+    "Leave automateUrl empty to deploy PSA-only: Automate registers no tools when",
+    "it is not configured, so that is the supported way to run without it."
+  ],
+  "parameters": {
+    "name": {
+      "value": "connectwise-mcp"
+    },
+    "psaSite": {
+      "value": "na.myconnectwise.net"
+    },
+    "psaCompanyId": {
+      "value": "replace-with-your-company-id"
+    },
+    "automateUrl": {
+      "value": ""
+    },
+    "automateUsername": {
+      "value": ""
+    },
+    "entraTenantId": {
+      "value": ""
+    },
+    "entraClientId": {
+      "value": ""
+    },
+    "minReplicas": {
+      "value": 1
+    },
+    "maxReplicas": {
+      "value": 5
+    }
+  }
+}
