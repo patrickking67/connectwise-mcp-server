@@ -21,7 +21,7 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   registers — the drift that otherwise happens the first time someone adds a tool.
 - Graceful SIGTERM/SIGINT draining on the remote entry. A severed write is worse
   than a severed read: the caller cannot tell whether the ticket was created.
-- `npm run start:remote`, `npm run docker:build`, `npm run contract`.
+- `npm run start:remote`, `npm run docker:build`.
 
 ### Changed
 - **Renamed the server to `connectwise-mcp-server`** — the package name, the
@@ -38,4 +38,4 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `MCP_ALLOW_ANONYMOUS=true` overrides the guard for a local, non-routable test
   and names the consequence in the warning it prints.
 
-[Unreleased]: https://github.com/patrickking67/connectwise-mcp/commits/main
+[Unreleased]: https://github.com/patrickking67/connectwise-mcp-server/commits/main

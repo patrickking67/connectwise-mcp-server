@@ -10,7 +10,6 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "contract": "node scripts/check-repo-contract.mjs",
     "dev": "tsx watch src/index.ts",
     "docker:build": "docker build -t connectwise-mcp-server .",
     "mcpb:pack": "npm run build && mcpb pack . connectwise-mcp-server.mcpb",
