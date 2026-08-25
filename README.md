@@ -163,7 +163,7 @@ Install it through **Settings → Extensions → Advanced settings** in Claude f
 For Claude Code, point at the stdio entry directly:
 
 ```bash
-claude mcp add connectwise -- node /absolute/path/to/connectwise-mcp-server/dist/stdio.js
+claude mcp add connectwise -- node /absolute/path/to/connectwise-mcp/dist/stdio.js
 ```
 
 ## Deploy to Azure Container Apps
@@ -227,7 +227,7 @@ Any other container host (Railway, Fly.io, Cloud Run, a VPS) works the same way:
 This repo also ships a **Claude Code plugin** that wraps the hosted server with 13 auto-activating MSP workflow skills (ticket triage, ticket creation, time, expenses, client overview, asset management, projects, agreements & billing, sales pipeline, procurement, dispatch, RMM, remote support) and `/cw-status` + `/cw-triage` commands. The repo root is a marketplace, so installing is two lines:
 
 ```
-/plugin marketplace add patrickking67/connectwise-mcp-server
+/plugin marketplace add patrickking67/connectwise-mcp
 /plugin install connectwise@connectwise-manage-mcp
 ```
 

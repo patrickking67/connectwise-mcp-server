@@ -11,10 +11,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/patrickking67/connectwise-mcp-server.git"
+    "url": "https://github.com/patrickking67/connectwise-mcp.git"
   },
-  "documentation": "https://github.com/patrickking67/connectwise-mcp-server/blob/main/README.md",
-  "support": "https://github.com/patrickking67/connectwise-mcp-server/issues",
+  "documentation": "https://github.com/patrickking67/connectwise-mcp/blob/main/README.md",
+  "support": "https://github.com/patrickking67/connectwise-mcp/issues",
   "server": {
     "type": "node",
     "entry_point": "dist/stdio.js",

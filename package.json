@@ -44,5 +44,13 @@
   ],
   "author": {
     "name": "Patrick King"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickking67/connectwise-mcp.git"
+  },
+  "homepage": "https://github.com/patrickking67/connectwise-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/patrickking67/connectwise-mcp/issues"
   }
 }

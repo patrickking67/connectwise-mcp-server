@@ -69,4 +69,4 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `MCP_ALLOW_ANONYMOUS=true` overrides the guard for a local, non-routable test
   and names the consequence in the warning it prints.
 
-[Unreleased]: https://github.com/patrickking67/connectwise-mcp-server/commits/main
+[Unreleased]: https://github.com/patrickking67/connectwise-mcp/commits/main
