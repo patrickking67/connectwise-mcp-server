@@ -10,13 +10,13 @@ Give a salesperson or manager a clear read on the funnel and the follow-ups that
 
 ## Tools
 
-- `psa_search_opportunities` — deals by stage, rep, company, close date
-- `psa_search_activities` — calls, meetings, and to-dos
-- `psa_search_companies` / `psa_search_contacts` — resolve accounts and people
+- `cw_search_opportunities` — deals by stage, rep, company, close date
+- `cw_search_activities` — calls, meetings, and to-dos
+- `cw_search_companies` / `cw_search_contacts` — resolve accounts and people
 
 ## Pipeline
 
-`psa_search_opportunities` conditions:
+`cw_search_opportunities` conditions:
 - My open pipeline: `primarySalesRep/identifier="pking" and status/name="Open"`
 - Closing this quarter: `expectedCloseDate < [2026-09-30T00:00:00Z] and status/name="Open"`
 - For an account: `company/identifier="acme"`
@@ -26,7 +26,7 @@ Summarize: count and total value by stage, deals closing soon, and stalled deals
 
 ## Activities
 
-`psa_search_activities` conditions:
+`cw_search_activities` conditions:
 - Mine, open: `assignTo/identifier="pking" and status/name="Open"`
 - Today: filter `dateStart` within the day
 - For a deal/account: `opportunity/id=<id>` or `company/identifier="acme"`

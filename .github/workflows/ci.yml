@@ -41,6 +41,13 @@ jobs:
       - name: Validate MCPB manifest
         run: npm run mcpb:validate
 
+      - name: Confirm the generated tool docs match the catalog
+        # docs/TOOLS.md, the README table and the manifest's tool list are all
+        # written from src/tools/catalog.ts. Regenerating them by hand is how they
+        # go stale, so CI fails instead of letting the docs describe a tool surface
+        # that no longer exists.
+        run: npm run tools:check
+
       - name: Confirm the build left no uncommitted drift
         run: |
           # Generated output must be reproducible from source. If building or

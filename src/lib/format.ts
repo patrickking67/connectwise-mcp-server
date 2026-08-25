@@ -23,6 +23,19 @@ export function jsonResult(data: unknown): CallToolResult {
   };
 }
 
+/**
+ * A result that also carries `structuredContent`, which is what an MCP Apps card
+ * renders from. The same JSON stays in `content` so hosts without MCP Apps — and the
+ * model itself — see exactly what they saw before.
+ */
+export function uiResult(data: unknown): CallToolResult {
+  const clean = stripNulls(data);
+  return {
+    content: [{ type: "text", text: JSON.stringify(clean) }],
+    structuredContent: clean as Record<string, unknown>,
+  };
+}
+
 export function textResult(text: string): CallToolResult {
   return { content: [{ type: "text", text }] };
 }

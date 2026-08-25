@@ -10,13 +10,13 @@ Get time logged accurately against the right work item with the right billable s
 
 ## Tools
 
-- `psa_create_time_entry` — log time against a ticket, project ticket, activity, or charge code
-- `psa_search_time_entries` — review existing entries (by member, date, charge-to target)
-- `psa_get_ticket` — confirm the ticket/company before logging
+- `cw_create_time_entry` — log time against a ticket, project ticket, activity, or charge code
+- `cw_search_time_entries` — review existing entries (by member, date, charge-to target)
+- `cw_get_ticket` — confirm the ticket/company before logging
 
 ## Logging time
 
-`psa_create_time_entry` needs:
+`cw_create_time_entry` needs:
 
 - **chargeToType**: `ServiceTicket` | `ProjectTicket` | `ChargeCode` | `Activity`
 - **chargeToId**: the ticket/activity id
@@ -34,7 +34,7 @@ Get time logged accurately against the right work item with the right billable s
 
 ## Reviewing time
 
-`psa_search_time_entries` conditions:
+`cw_search_time_entries` conditions:
 
 - Mine this week: `member/identifier="pking" and timeStart > [2026-06-08T00:00:00Z]`
 - For a ticket: `chargeToId=1234 and chargeToType="ServiceTicket"`

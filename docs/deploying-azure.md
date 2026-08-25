@@ -8,7 +8,7 @@ Azure is the only deployment target for this product line.
 
 ## What you are deploying, and why it is not just a transport switch
 
-The remote server exposes the same 35 tools over HTTP instead of
+The remote server exposes the same tool catalog over HTTP instead of
 stdio. Two things move, and both are decisions rather than configuration:
 
 1. **The ConnectWise credential moves off a workstation** into Key Vault, where one

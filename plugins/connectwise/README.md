@@ -1,6 +1,6 @@
 # ConnectWise plugin
 
-Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConnect)** from your AI assistant, with workflow skills for the daily MSP grind. The plugin connects to the [connectwise-mcp](https://github.com/patrickking67/connectwise-mcp) server (a remote MCP connector you host), so your ConnectWise credentials stay server-side and never reach the client. Works with any MCP-capable client.
+Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConnect)** from your AI assistant, with workflow skills for the daily MSP grind. The plugin connects to the [ConnectWise Manage MCP Server](https://github.com/patrickking67/connectwise-mcp-server) (a remote MCP connector you host), so your ConnectWise credentials stay server-side and never reach the client. Works with any MCP-capable client.
 
 ## What you get
 
@@ -24,13 +24,13 @@ Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConne
 
 **Commands:** `/cw-status` (connectivity + what's enabled) · `/cw-triage [board|company]` (triage the service board)
 
-**Tools:** 29 PSA tools (tickets, companies, contacts, configurations, time, expenses, projects, project tickets, opportunities, agreements + additions, invoices, members, activities, schedule, boards, purchase orders, ticket tasks, plus a full-API escape hatch), optional Automate (RMM) tools, and optional Control (ScreenConnect) tools — all surfaced from the MCP server.
+**Tools:** 30 PSA tools named `cw_*` (tickets, companies, contacts, configurations, time, expenses, projects, project tickets, opportunities, agreements + additions, invoices, members, activities, schedule, boards, purchase orders, ticket tasks, plus read and write escape hatches), optional `cw_automate_*` (RMM) tools, and optional `cw_control_*` (ScreenConnect) tools — all surfaced from the MCP server, each declaring whether it is read-only, a write, or interactive. The full catalog is in [docs/TOOLS.md](../../docs/TOOLS.md).
 
 ## Install
 
 ```
-/plugin marketplace add patrickking67/connectwise-mcp
-/plugin install connectwise@connectwise-mcp
+/plugin marketplace add patrickking67/connectwise-mcp-server
+/plugin install connectwise@connectwise-manage-mcp
 ```
 
 ## Configure
@@ -44,7 +44,7 @@ The plugin reads two environment variables to reach your hosted MCP server:
 
 Set them where your client reads env (your shell profile or `.claude/settings.json` `env`), then restart the client. Verify with `/cw-status`.
 
-Which modules light up (PSA always; Automate and Control optional) is controlled **server-side** by which credentials you set there — see the [connectwise-mcp repo](https://github.com/patrickking67/connectwise-mcp).
+Which modules light up (PSA always; Automate and Control optional) is controlled **server-side** by which credentials you set there — see the [connectwise-mcp-server repo](https://github.com/patrickking67/connectwise-mcp-server).
 
 > Don't have the server yet? `docs/SETUP.md` in that repo deploys it to Azure Container Apps in a few commands. For per-user Microsoft sign-in instead of a shared token, see `docs/ENTRA_SETUP.md`.
 

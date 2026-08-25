@@ -10,16 +10,16 @@ Surface remote-access sessions from a ConnectWise Control instance. **Beta:** Co
 
 ## Tools
 
-- `screenconnect_list_sessions` — host sessions by type (Access / Support / Meeting); best-effort
-- `screenconnect_api_request` — authenticated passthrough to the instance; the reliable surface when conveniences don't fit your version
+- `cw_control_list_sessions` — host sessions by type (Access / Support / Meeting); best-effort
+- `cw_control_api_request` — authenticated passthrough to the instance; the reliable surface when conveniences don't fit your version. Control answers many reads over POST, so POST is available and requires `confirm: true`
 
 ## Workflow
 
-1. **List sessions.** `screenconnect_list_sessions` with `sessionType`:
+1. **List sessions.** `cw_control_list_sessions` with `sessionType`:
    - `Access` (default) — unattended/managed machines
    - `Support` — active attended support sessions
    - `Meeting` — meetings
-2. **If that errors** (version mismatch), fall back to `screenconnect_api_request`, e.g. `POST /Services/PageService.ashx/GetHostSessionInfo` — the body for `.ashx` services is a positional argument array specific to your Control version.
+2. **If that errors** (version mismatch), fall back to `cw_control_api_request`, e.g. `POST /Services/PageService.ashx/GetHostSessionInfo` — the body for `.ashx` services is a positional argument array specific to your Control version.
 3. **Report** online vs. offline machines, session names, and last activity. Match a machine to a client by name/group.
 
 ## Tips
@@ -30,4 +30,4 @@ Surface remote-access sessions from a ConnectWise Control instance. **Beta:** Co
 ## Guardrails
 
 - Beta and instance-dependent — if a tool returns an auth or shape error, report it plainly and suggest the passthrough; don't pretend a result exists.
-- `screenconnect_api_request` POSTs hit live remote-access infrastructure and require `confirm: true`. Never initiate, end, or transfer a remote session without the user explicitly asking.
+- `cw_control_api_request` POSTs hit live remote-access infrastructure and require `confirm: true`. Never initiate, end, or transfer a remote session without the user explicitly asking.

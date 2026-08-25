@@ -10,12 +10,12 @@ Capture reimbursable and billable expenses against the right work item with the 
 
 ## Tools
 
-- `psa_create_expense` — log an expense (type, amount, date required)
-- `psa_search_expenses` — review existing expenses
+- `cw_create_expense` — log an expense (type, amount, date required)
+- `cw_search_expenses` — review existing expenses
 
 ## Logging an expense
 
-`psa_create_expense` fields:
+`cw_create_expense` fields:
 
 - **expenseType** (required): the type name — e.g. `Mileage`, `Meals`, `Airfare`, `Hardware`. Match your instance's configured types.
 - **amount** (required): the cost.
@@ -33,7 +33,7 @@ Capture reimbursable and billable expenses against the right work item with the 
 
 ## Reviewing expenses
 
-`psa_search_expenses` conditions:
+`cw_search_expenses` conditions:
 - Mine this month: `member/identifier="pking" and date > [2026-06-01T00:00:00Z]`
 - For a ticket: `chargeToId=1234 and chargeToType="ServiceTicket"`
 - Billable only: `billableOption="Billable"`
