@@ -5,7 +5,7 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-08-25
 
 ### Changed — breaking
 
@@ -69,4 +69,4 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `MCP_ALLOW_ANONYMOUS=true` overrides the guard for a local, non-routable test
   and names the consequence in the warning it prints.
 
-[Unreleased]: https://github.com/patrickking67/connectwise-mcp/commits/main
+[0.3.0]: https://github.com/patrickking67/connectwise-mcp/commits/main
