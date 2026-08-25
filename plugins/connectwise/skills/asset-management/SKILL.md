@@ -10,12 +10,12 @@ Answer "what do we manage for this client" and find specific devices fast.
 
 ## Tools
 
-- `psa_search_configurations` — managed devices/assets (servers, workstations, network gear, etc.)
-- `psa_api_request` — configuration types (`/company/configurations/types`) and anything else under `/company/configurations/*`
+- `cw_search_configurations` — managed devices/assets (servers, workstations, network gear, etc.)
+- `cw_api_request` — configuration types (`/company/configurations/types`) and anything else under `/company/configurations/*`
 
 ## Workflow
 
-1. **Search configurations.** `psa_search_configurations`:
+1. **Search configurations.** `cw_search_configurations`:
    - A client's active assets: `company/identifier="acme" and activeFlag=true`
    - By type: `type/name="Managed Workstation"` or `type/name="Server"`
    - By identity: `serialNumber="ABC123"`, `tagNumber="..."`, or `name contains "SRV"`

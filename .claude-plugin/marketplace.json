@@ -1,21 +1,32 @@
 {
-  "name": "connectwise-mcp",
+  "name": "connectwise-manage-mcp",
   "owner": {
     "name": "Patrick King",
     "email": "patrickk@divergeit.com"
   },
   "metadata": {
     "description": "ConnectWise PSA (Manage), Automate (RMM), and Control (ScreenConnect) tools and MSP workflow skills for AI assistants.",
-    "version": "0.1.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "connectwise",
       "source": "./plugins/connectwise",
-      "description": "Run ConnectWise PSA (Manage), Automate (RMM), and Control (ScreenConnect) from your AI assistant: tickets, companies, contacts, configurations, time, expenses, agreements, projects, procurement, sales, and dispatch — plus 13 MSP workflow skills.",
+      "description": "Run ConnectWise PSA (Manage), Automate (RMM), and Control (ScreenConnect) from your AI assistant: tickets, companies, contacts, configurations, time, expenses, agreements, projects, procurement, sales, and dispatch \u2014 plus 13 MSP workflow skills.",
       "version": "0.1.0",
       "category": "productivity",
-      "keywords": ["connectwise", "psa", "manage", "msp", "rmm", "automate", "screenconnect", "control", "helpdesk", "ticketing"]
+      "keywords": [
+        "connectwise",
+        "psa",
+        "manage",
+        "msp",
+        "rmm",
+        "automate",
+        "screenconnect",
+        "control",
+        "helpdesk",
+        "ticketing"
+      ]
     }
   ]
 }

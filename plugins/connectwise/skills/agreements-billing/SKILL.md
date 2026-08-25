@@ -10,23 +10,23 @@ Answer "what do they pay for" and "what do they owe" — contract coverage and r
 
 ## Tools
 
-- `psa_search_agreements` — managed-service contracts
-- `psa_get_agreement_additions` — the billed line items on an agreement (seats, licenses, products)
-- `psa_search_invoices` — invoices and balances
-- `psa_search_companies` — resolve the client
+- `cw_search_agreements` — managed-service contracts
+- `cw_get_agreement_additions` — the billed line items on an agreement (seats, licenses, products)
+- `cw_search_invoices` — invoices and balances
+- `cw_search_companies` — resolve the client
 
 ## Agreements
 
-`psa_search_agreements` conditions:
+`cw_search_agreements` conditions:
 - A client's active contracts: `company/identifier="acme" and agreementStatus="Active"`
 - Expiring: `endDate < [2026-09-30T00:00:00Z] and agreementStatus="Active"`
 - By type: `type/name contains "Managed"`
 
-For "what's covered," call `psa_get_agreement_additions` on the agreement id — each addition is a billed item with quantity and unit price. Summarize monthly recurring (sum of `quantity × unitPrice` for non-cancelled additions) and flag anything cancelled or with `lessIncluded`.
+For "what's covered," call `cw_get_agreement_additions` on the agreement id — each addition is a billed item with quantity and unit price. Summarize monthly recurring (sum of `quantity × unitPrice` for non-cancelled additions) and flag anything cancelled or with `lessIncluded`.
 
 ## Invoices & AR
 
-`psa_search_invoices` conditions:
+`cw_search_invoices` conditions:
 - Outstanding: `balance > 0` (add `company/identifier="acme"` to scope)
 - Recent: `date > [2026-01-01T00:00:00Z]`
 

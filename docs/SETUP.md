@@ -86,7 +86,7 @@ For per-user Microsoft sign-in instead of the shared token, see [ENTRA_SETUP.md]
 ## 6. Verify
 
 1. `curl https://<fqdn>/healthz` → `{"ok":true,...}`
-2. In Claude: "run psa_system_info" → returns your PSA version → credentials work.
+2. In Claude: "run cw_system_info" → returns your PSA version → credentials work.
 3. "search tickets on the Help Desk board that aren't closed" → real data flows.
 
 ## Troubleshooting

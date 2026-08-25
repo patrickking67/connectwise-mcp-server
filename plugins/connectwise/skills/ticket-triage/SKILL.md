@@ -10,11 +10,11 @@ Help a technician or dispatcher make sense of the service board and act on it. T
 
 ## Tools
 
-- `psa_search_tickets` — find tickets by board, status, owner, company, age
-- `psa_get_ticket` — full detail + notes for one ticket
-- `psa_update_ticket` — change status, owner, priority (PATCH semantics)
-- `psa_add_ticket_note` — discussion / internal / resolution notes
-- `psa_list_boards` / `psa_get_board_info` — valid board + status/type names before you change them
+- `cw_search_tickets` — find tickets by board, status, owner, company, age
+- `cw_get_ticket` — full detail + notes for one ticket
+- `cw_update_ticket` — change status, owner, priority (PATCH semantics)
+- `cw_add_ticket_note` — discussion / internal / resolution notes
+- `cw_list_boards` / `cw_get_board_info` — valid board + status/type names before you change them
 
 ## Workflow
 
@@ -25,15 +25,15 @@ Help a technician or dispatcher make sense of the service board and act on it. T
    - Stale: `closedFlag=false and lastUpdated < [2026-06-03T00:00:00Z]`
    - Escalated/aging by SLA: sort with `orderBy: "_info/lastUpdated asc"` to see oldest-touched first.
 2. **Rank, don't list.** Order by priority then age. Call out: unassigned, breaching/aging, customer-responded, and anything high severity/impact.
-3. **Summarize each** in one line: `#id · company · summary · status · owner · age`. Pull `psa_get_ticket` only for the few that need detail.
+3. **Summarize each** in one line: `#id · company · summary · status · owner · age`. Pull `cw_get_ticket` only for the few that need detail.
 4. **Recommend actions** and, when the user confirms, execute:
-   - Assign: `psa_update_ticket` with `{"owner":{"identifier":"pking"}}`
-   - Move status: `{"status":{"name":"In Progress"}}` (verify the name via `psa_get_board_info` first — statuses are board-specific)
-   - Note: `psa_add_ticket_note` (use `internal` for analysis the customer shouldn't see)
+   - Assign: `cw_update_ticket` with `{"owner":{"identifier":"pking"}}`
+   - Move status: `{"status":{"name":"In Progress"}}` (verify the name via `cw_get_board_info` first — statuses are board-specific)
+   - Note: `cw_add_ticket_note` (use `internal` for analysis the customer shouldn't see)
 
 ## Guardrails
 
-- Status/type/priority names vary per board — confirm with `psa_get_board_info` before writing, or the PATCH fails.
+- Status/type/priority names vary per board — confirm with `cw_get_board_info` before writing, or the PATCH fails.
 - Default to compact fields; only request `fields: "all"` when the user needs detail.
 - Confirm before bulk status changes or reassignments. Never close tickets unless explicitly asked.
 - Paginate (`page`, `pageSize`) for big queues; report counts honestly ("showing 25 of N").

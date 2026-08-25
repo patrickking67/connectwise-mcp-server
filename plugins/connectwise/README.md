@@ -1,6 +1,6 @@
 # ConnectWise plugin
 
-Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConnect)** from your AI assistant, with workflow skills for the daily MSP grind. The plugin connects to the [connectwise-mcp](https://github.com/patrickking67/connectwise-mcp) server (a remote MCP connector you host), so your ConnectWise credentials stay server-side and never reach the client. Works with any MCP-capable client.
+Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConnect)** from your AI assistant, with workflow skills for the daily MSP grind. The plugin connects to the [ConnectWise Manage MCP Server](https://github.com/patrickking67/connectwise-mcp) (a remote MCP connector you host), so your ConnectWise credentials stay server-side and never reach the client. Works with any MCP-capable client.
 
 ## What you get
 
@@ -24,13 +24,13 @@ Run **ConnectWise PSA (Manage)**, **Automate (RMM)**, and **Control (ScreenConne
 
 **Commands:** `/cw-status` (connectivity + what's enabled) · `/cw-triage [board|company]` (triage the service board)
 
-**Tools:** 29 PSA tools (tickets, companies, contacts, configurations, time, expenses, projects, project tickets, opportunities, agreements + additions, invoices, members, activities, schedule, boards, purchase orders, ticket tasks, plus a full-API escape hatch), optional Automate (RMM) tools, and optional Control (ScreenConnect) tools — all surfaced from the MCP server.
+**Tools:** 30 PSA tools named `cw_*` (tickets, companies, contacts, configurations, time, expenses, projects, project tickets, opportunities, agreements + additions, invoices, members, activities, schedule, boards, purchase orders, ticket tasks, plus read and write escape hatches), optional `cw_automate_*` (RMM) tools, and optional `cw_control_*` (ScreenConnect) tools — all surfaced from the MCP server, each declaring whether it is read-only, a write, or interactive. The full catalog is in [docs/TOOLS.md](../../docs/TOOLS.md).
 
 ## Install
 
 ```
 /plugin marketplace add patrickking67/connectwise-mcp
-/plugin install connectwise@connectwise-mcp
+/plugin install connectwise@connectwise-manage-mcp
 ```
 
 ## Configure

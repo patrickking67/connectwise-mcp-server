@@ -10,20 +10,20 @@ Give a project manager a clear read on where projects stand: status, work remain
 
 ## Tools
 
-- `psa_search_projects` — projects by status, manager, company, dates
-- `psa_search_project_tickets` — work items within projects (phases, owners, status)
-- `psa_search_time_entries` — actuals logged against project work
-- `psa_api_request` — phases (`/project/projects/{id}/phases`), team members, and anything else under `/project/*`
+- `cw_search_projects` — projects by status, manager, company, dates
+- `cw_search_project_tickets` — work items within projects (phases, owners, status)
+- `cw_search_time_entries` — actuals logged against project work
+- `cw_api_request` — phases (`/project/projects/{id}/phases`), team members, and anything else under `/project/*`
 
 ## Workflow
 
-1. **Find the project.** `psa_search_projects`:
+1. **Find the project.** `cw_search_projects`:
    - Active: `closedFlag=false` (optionally `status/name="Open"`)
    - A client's: `company/identifier="acme" and closedFlag=false`
    - A PM's book: `manager/identifier="pking" and closedFlag=false`
 2. **Status read.** For each project surface: status, % via budget vs. actual hours (`actualHours` vs `budgetHours`), estimated end, and open ticket count. Flag over-budget (`actualHours > budgetHours`) and past-due (`estimatedEnd < today`).
-3. **Drill into work.** `psa_search_project_tickets` with `project/id=<id> and closedFlag=false`, grouped by phase. Show owners and what's in flight vs. not started.
-4. **Phases / team** when asked: `psa_api_request GET /project/projects/{id}/phases` and `/project/projects/{id}/teamMembers`.
+3. **Drill into work.** `cw_search_project_tickets` with `project/id=<id> and closedFlag=false`, grouped by phase. Show owners and what's in flight vs. not started.
+4. **Phases / team** when asked: `cw_api_request` on `/project/projects/{id}/phases` and `/project/projects/{id}/teamMembers`.
 
 ## Tips
 

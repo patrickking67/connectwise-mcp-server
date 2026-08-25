@@ -1,7 +1,7 @@
 {
-  "name": "connectwise-mcp-server",
-  "version": "0.2.0",
-  "description": "Unified ConnectWise MCP server (PSA/Manage, Automate, Control) \u2014 local stdio, remote Streamable HTTP, and an MCPB bundle",
+  "name": "connectwise-manage-mcp",
+  "version": "0.3.0",
+  "description": "ConnectWise Manage MCP server (PSA, plus optional Automate and Control) \u2014 local stdio, remote Streamable HTTP, and an MCPB bundle",
   "type": "module",
   "main": "dist/index.js",
   "license": "MIT",
@@ -11,13 +11,15 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
-    "docker:build": "docker build -t connectwise-mcp-server .",
-    "mcpb:pack": "npm run build && mcpb pack . connectwise-mcp-server.mcpb",
+    "docker:build": "docker build -t connectwise-manage-mcp .",
+    "mcpb:pack": "npm run build && mcpb pack . connectwise-manage-mcp.mcpb",
     "mcpb:validate": "mcpb validate manifest.json",
     "start": "node dist/index.js",
     "start:remote": "node dist/index.js",
     "start:stdio": "node dist/stdio.js",
     "test": "vitest run",
+    "tools:check": "tsx scripts/sync-tool-docs.ts --check",
+    "tools:sync": "tsx scripts/sync-tool-docs.ts",
     "typecheck": "tsc -p tsconfig.test.json --noEmit"
   },
   "dependencies": {
@@ -35,12 +37,20 @@
     "vitest": "^3.1.0"
   },
   "bin": {
-    "connectwise-mcp-server": "dist/stdio.js"
+    "connectwise-manage-mcp": "dist/stdio.js"
   },
   "files": [
     "dist"
   ],
   "author": {
     "name": "Patrick King"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patrickking67/connectwise-mcp.git"
+  },
+  "homepage": "https://github.com/patrickking67/connectwise-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/patrickking67/connectwise-mcp/issues"
   }
 }
