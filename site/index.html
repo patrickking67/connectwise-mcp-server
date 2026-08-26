@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ConnectWise Manage MCP Server</title>
+<meta name="description" content="Run ConnectWise PSA, Automate, and Control from Claude, ChatGPT, or any MCP client — locally or as a remote connector. 37 annotated tools.">
+<meta property="og:title" content="ConnectWise Manage MCP Server">
+<meta property="og:description" content="Run ConnectWise PSA, Automate, and Control from any MCP client. 37 annotated tools, one code path across stdio, Streamable HTTP, and MCPB.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://patrickking67.github.io/connectwise-mcp/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔌</text></svg>">
+<style>
+  :root{
+    --bg:#0f1115; --surface:#161920; --surface-2:#1c2029; --line:#272c37;
+    --text:#e8eaf0; --muted:#9aa3b2; --accent:#4ea1ff; --accent-dim:#1f4d7a;
+    --warn-bg:#2a1f12; --warn-line:#6b4a1f; --warn-text:#f0c987;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:light){
+    :root{
+      --bg:#ffffff; --surface:#f7f8fa; --surface-2:#eef1f5; --line:#dde2ea;
+      --text:#12151b; --muted:#5b6472; --accent:#0b62c4; --accent-dim:#bcd8f7;
+      --warn-bg:#fdf6e7; --warn-line:#e3c483; --warn-text:#7a5711;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+       line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+  header{padding:72px 0 48px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.15;margin:0 0 18px;letter-spacing:-.02em}
+  .lede{font-size:clamp(16px,2.2vw,19px);color:var(--muted);max-width:46em;margin:0 0 28px}
+  .cta{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-block;padding:10px 18px;border-radius:6px;text-decoration:none;
+       font-size:15px;font-weight:500;border:1px solid var(--line);color:var(--text);
+       background:var(--surface);transition:border-color .15s,background .15s}
+  .btn:hover{border-color:var(--accent);background:var(--surface-2)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{opacity:.9;background:var(--accent)}
+  section{padding:48px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:22px;margin:0 0 8px;letter-spacing:-.01em}
+  h2 + .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px}
+  .stat .n{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--accent);
+           display:block;line-height:1.1}
+  .stat .l{font-size:13px;color:var(--muted);margin-top:6px;display:block}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:20px}
+  .card h3{margin:0 0 8px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14.5px}
+  .card code{font-family:var(--mono);font-size:12.5px;background:var(--surface-2);
+             padding:1px 5px;border-radius:4px;color:var(--text)}
+  pre{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+      padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.55;margin:0 0 16px}
+  pre code{color:var(--text)}
+  .cmt{color:var(--muted)}
+  .callout{background:var(--warn-bg);border:1px solid var(--warn-line);border-left-width:3px;
+           border-radius:6px;padding:16px 18px;color:var(--warn-text);font-size:14.5px}
+  .callout strong{color:var(--warn-text)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;display:block;overflow-x:auto}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+  td code{font-family:var(--mono);font-size:12.5px}
+  .links{display:flex;flex-wrap:wrap;gap:10px 22px;padding:0;margin:0;list-style:none}
+  .links a{color:var(--accent);text-decoration:none;font-size:15px}
+  .links a:hover{text-decoration:underline}
+  footer{padding:36px 0 56px;color:var(--muted);font-size:14px;display:flex;
+         flex-wrap:wrap;gap:8px 20px;align-items:center}
+  footer a{color:var(--muted)}
+  a:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Model Context Protocol server</p>
+    <h1>Run ConnectWise from your AI client.</h1>
+    <p class="lede">
+      <strong>connectwise-manage-mcp</strong> exposes ConnectWise PSA (Manage) to Claude,
+      ChatGPT, Microsoft&nbsp;365 Copilot, or any other MCP client — locally over stdio or
+      as a remote connector. Automate (RMM) and Control (ScreenConnect, beta) register
+      alongside it when you configure them.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/patrickking67/connectwise-mcp">View on GitHub</a>
+      <a class="btn" href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/SETUP.md">Setup guide</a>
+      <a class="btn" href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/TOOLS.md">Tool catalog</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><span class="n">37</span><span class="l">tools</span></div>
+      <div class="stat"><span class="n">28</span><span class="l">read-only</span></div>
+      <div class="stat"><span class="n">8</span><span class="l">write</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">ConnectWise products</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Every tool is annotated, not implied</h2>
+    <p class="sub">Hosts gate on MCP annotations. This server gives them an honest answer for all 37 tools.</p>
+    <table>
+      <thead><tr><th>Kind</th><th>Carries</th><th>What the host does with it</th></tr></thead>
+      <tbody>
+        <tr><td><code>read</code></td><td><code>readOnlyHint</code></td><td>Claude parallelizes these calls</td></tr>
+        <tr><td><code>write</code></td><td><code>destructiveHint</code> / <code>idempotentHint</code></td><td>Copilot prompts before running</td></tr>
+        <tr><td><code>interactive</code></td><td>an MCP Apps <code>ui://</code> resource</td><td>renders a card, with a JSON fallback</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Install</h2>
+    <p class="sub">One catalog, three transports.</p>
+    <pre><code><span class="cmt"># Local (stdio)</span>
+git clone https://github.com/patrickking67/connectwise-mcp
+cd connectwise-mcp &amp;&amp; npm install &amp;&amp; npm run build
+node dist/stdio.js
+
+<span class="cmt"># Remote (Streamable HTTP) — stateless, horizontally scalable</span>
+npm run start:remote
+
+<span class="cmt"># MCPB bundle for a one-click local install</span>
+npm run mcpb:pack</code></pre>
+    <div class="callout">
+      <strong>This connector writes.</strong> It creates and updates tickets, adds notes, and
+      creates time and expense entries. The remote entry <em>refuses to start</em> unless
+      <code>MCP_AUTH_TOKEN</code> or the Entra pair is configured — an open endpoint is not a
+      degraded deployment of it.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What it covers</h2>
+    <p class="sub">Automate and Control register only when configured.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>PSA (Manage)</h3>
+        <p>Tickets, companies, contacts, configurations, time, expenses, projects,
+           finance, and sales. Always registered.</p>
+      </div>
+      <div class="card">
+        <h3>Automate (RMM)</h3>
+        <p>Computers, scripts, and monitors, via a cached API token that refreshes on
+           <code>401</code>.</p>
+      </div>
+      <div class="card">
+        <h3>Control — beta</h3>
+        <p>ScreenConnect sessions through forms auth. Endpoint shapes are
+           version-dependent, so it stays a guarded passthrough.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Documentation</h2>
+    <ul class="links">
+      <li><a href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/SETUP.md">Zero-to-working setup</a></li>
+      <li><a href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/TOOLS.md">Full tool catalog</a></li>
+      <li><a href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/deploying-azure.md">Azure runbook</a></li>
+      <li><a href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/ENTRA_SETUP.md">Entra per-user sign-in</a></li>
+      <li><a href="https://github.com/patrickking67/connectwise-mcp/blob/main/docs/GO-LIVE.md">Go-live checklist</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;flex-wrap:wrap;gap:8px 20px">
+    <span>MIT licensed</span>
+    <span>Node 20+</span>
+    <a href="https://github.com/patrickking67/connectwise-mcp">github.com/patrickking67/connectwise-mcp</a>
+  </div>
+</footer>
+</body>
+</html>
